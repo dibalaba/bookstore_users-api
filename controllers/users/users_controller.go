@@ -6,6 +6,7 @@ import (
 	//"io/ioutil"
 	//"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/dibalaba/bookstore_users-api/domain/users"
 	"github.com/dibalaba/bookstore_users-api/services"
@@ -48,5 +49,20 @@ func CreateUser(c *gin.Context) {
 }
 
 func GetUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "implement me")
+	userId, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("user id should be a number")
+		c.JSON(err.Status, err)
+		return
+	}
+	//c.String(http.StatusNotImplemented, "implement me")
+
+	user, getErr := services.GetUser(userId)
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
+		// TODO: handle user creation error
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
